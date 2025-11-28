@@ -1,6 +1,13 @@
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBus } from '@fortawesome/free-solid-svg-icons';
+import {
+  faBus,
+  faTrain,
+  faShip,
+  faTrainSubway,
+  faTram,
+} from '@fortawesome/free-solid-svg-icons';
+import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { useEffect, useState } from 'react';
 import {
   Table,
@@ -12,11 +19,32 @@ import {
 } from '../components/ui/table';
 import { Button } from '../components/ui/button';
 import useTransportLinkTimes from '../hooks/useTransportLinkTimes';
-import { BVGDeparture } from '../services/transportLinkService';
+import { BVGDeparture, BVGProduct } from '../services/transportLinkService';
 
 // TODO: Make these dynamic
 const FROM_STOP_ID = '900063202';
 const REFRESH_INTERVAL = 60;
+
+const getProductIcon = (product: BVGProduct): IconDefinition => {
+  switch (product) {
+    case 'bus':
+      return faBus;
+    case 'express':
+      return faTrain;
+    case 'ferry':
+      return faShip;
+    case 'regional':
+      return faTrain;
+    case 'suburban':
+      return faTrain;
+    case 'subway':
+      return faTrainSubway;
+    case 'tram':
+      return faTram;
+    default:
+      return faBus;
+  }
+};
 
 export default function JourneyTimes() {
   const {
@@ -71,7 +99,10 @@ export default function JourneyTimes() {
                 return (
                   <TableRow key={departure.tripId}>
                     <TableCell>
-                      <FontAwesomeIcon icon={faBus} className="text-primary" />
+                      <FontAwesomeIcon
+                        icon={getProductIcon(departure.line.product)}
+                        className="text-primary"
+                      />
                     </TableCell>
                     <TableCell className="font-medium">
                       {departure.line.name}

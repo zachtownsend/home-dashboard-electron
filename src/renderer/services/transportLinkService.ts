@@ -10,7 +10,7 @@
 
 const API_URL = 'https://v6.bvg.transport.rest';
 
-type BVGProduct =
+export type BVGProduct =
   | 'bus'
   | 'express'
   | 'ferry'
