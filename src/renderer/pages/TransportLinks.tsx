@@ -3,20 +3,20 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBus } from '@fortawesome/free-solid-svg-icons';
 import { useEffect, useState } from 'react';
 import useTransportLinkTimes from '../hooks/useTransportLinkTimes';
+import { BVGDeparture } from '../services/transportLinkService';
 
 // TODO: Make these dynamic
 const FROM_STOP_ID = '900063202';
-const TO_STOP_ID = '900062202';
 const REFRESH_INTERVAL = 60;
 
 export default function JourneyTimes() {
   const {
-    data: transportTimes,
+    data: departures,
     // isLoading,
     // isError,
     // error,
     refetch,
-  } = useTransportLinkTimes(FROM_STOP_ID, TO_STOP_ID);
+  } = useTransportLinkTimes(FROM_STOP_ID);
   const now = new Date();
   const [refreshCount, setRefreshCount] = useState(REFRESH_INTERVAL);
 
@@ -37,23 +37,20 @@ export default function JourneyTimes() {
       <h1>Transport Links Page</h1>
       <div>Refreshing in {refreshCount} seconds</div>
       <div>
-        {transportTimes ? (
+        {departures ? (
           <ul>
-            {transportTimes?.map((transportTime: any) => {
-              const leg = transportTime.legs[0];
-              const departureDate = new Date(leg.departure);
+            {departures?.map((departure: BVGDeparture) => {
+              const departureDate = new Date(departure.when);
               const delayedDepartureMs =
-                departureDate.getTime() + leg.departureDelay * 1000;
+                departureDate.getTime() + departure.delay * 1000;
               const minutesUntilDeparture = Math.ceil(
                 (delayedDepartureMs - now.getTime()) / (1000 * 60),
               );
               return (
-                <li
-                  key={transportTime.refreshToken}
-                  className="flex align-center"
-                >
+                <li key={departure.tripId} className="flex align-center">
                   <FontAwesomeIcon icon={faBus} />
-                  <p className="ml-2">{leg.line.name}</p>
+                  <p className="ml-2">{departure.line.name}</p>
+                  <p className="ml-2">Direction: {departure.direction}</p>
                   <p className="ml-2">{minutesUntilDeparture} minutes</p>
                 </li>
               );

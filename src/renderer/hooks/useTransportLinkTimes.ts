@@ -1,10 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import { getTransportTimes } from '../services/transportLinkService';
 
-const useTransportLinkTimes = (fromStopId: string, toStopId: string) => {
+const useTransportLinkTimes = (fromStopId: string) => {
   return useQuery({
-    queryKey: ['transportTimes', fromStopId, toStopId],
-    queryFn: () => getTransportTimes(fromStopId, toStopId),
+    queryKey: ['transportTimes', fromStopId],
+    queryFn: () => getTransportTimes(fromStopId),
   });
 };
 

@@ -10,7 +10,7 @@
 
 const API_URL = 'https://v6.bvg.transport.rest';
 
-type BVGJourneyLegMode =
+type BVGProduct =
   | 'bus'
   | 'express'
   | 'ferry'
@@ -19,51 +19,46 @@ type BVGJourneyLegMode =
   | 'subway'
   | 'tram';
 
-interface BVGJourneyLeg {
-  arrival: string; // Date string
-  arrivalDelay: number;
-  arrivalPlatform: string | null;
-
-  departure: string; // Date string
-  departureDelay: number;
-  departurePlatform: string | null;
-  line: {
-    id: string;
-    mode: BVGJourneyLegMode;
+export type BVGDeparture = {
+  tripId: string;
+  stop: {
     name: string;
-    product: BVGJourneyLegMode;
+    products: {
+      suburban: boolean;
+      subway: boolean;
+      tram: boolean;
+      bus: boolean;
+      ferry: boolean;
+      express: boolean;
+      regional: boolean;
+    };
+  };
+  when: string;
+  plannedWhen: string;
+  delay: number;
+  direction: string;
+  occupancy: string;
+  line: {
+    name: string;
+    product: BVGProduct;
     productName: string;
-    type: 'line';
     public: boolean;
     occupancy: 'low' | 'normal' | 'high';
   };
-}
-
-type BVGJourney = {
-  refreshToken: string;
-  cycle: {
-    min: number;
-  };
-  legs: BVGJourneyLeg[];
-  type: 'journey';
 };
 
-interface BVGJourneyResponse {
-  journeys: BVGJourney[];
+interface BVGDeparturesResponse {
+  departures: BVGDeparture[];
   realtimeDataUpdatedAt: number;
-  earlierRef: string;
-  laterRef: string;
 }
 
 // eslint-disable-next-line import/prefer-default-export
-export const getTransportTimes = async (
-  fromStopId: string,
-  toStopId: string,
-) => {
-  const response = await fetch(
-    `${API_URL}/journeys?from=${fromStopId}&to=${toStopId}&results=5`,
+export const getTransportTimes = async (fromStopId: string) => {
+  const response = await fetch(`${API_URL}/stops/${fromStopId}/departures`);
+  const data = (await response.json()) as BVGDeparturesResponse;
+  const sortedDepartures = data.departures.sort(
+    (a, b) => new Date(a.when).getTime() - new Date(b.when).getTime(),
   );
-  const data = (await response.json()) as BVGJourneyResponse;
-  console.log(data.journeys);
-  return data.journeys;
+  console.log(sortedDepartures);
+  return sortedDepartures;
 };
