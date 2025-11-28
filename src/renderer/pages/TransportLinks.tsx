@@ -2,6 +2,15 @@ import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBus } from '@fortawesome/free-solid-svg-icons';
 import { useEffect, useState } from 'react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '../components/ui/table';
+import { Button } from '../components/ui/button';
 import useTransportLinkTimes from '../hooks/useTransportLinkTimes';
 import { BVGDeparture } from '../services/transportLinkService';
 
@@ -33,35 +42,55 @@ export default function JourneyTimes() {
   }, [refetch, refreshCount]);
 
   return (
-    <div>
-      <h1>Transport Links Page</h1>
-      <div>Refreshing in {refreshCount} seconds</div>
+    <div className="container mx-auto p-6 space-y-6">
       <div>
-        {departures ? (
-          <ul>
-            {departures?.map((departure: BVGDeparture) => {
-              const departureDate = new Date(departure.when);
-              const delayedDepartureMs =
-                departureDate.getTime() + departure.delay * 1000;
-              const minutesUntilDeparture = Math.ceil(
-                (delayedDepartureMs - now.getTime()) / (1000 * 60),
-              );
-              return (
-                <li key={departure.tripId} className="flex align-center">
-                  <FontAwesomeIcon icon={faBus} />
-                  <p className="ml-2">{departure.line.name}</p>
-                  <p className="ml-2">Direction: {departure.direction}</p>
-                  <p className="ml-2">{minutesUntilDeparture} minutes</p>
-                </li>
-              );
-            })}
-          </ul>
+        <h1 className="text-3xl font-bold mb-2">Transport Links</h1>
+        <p className="text-muted-foreground">
+          Refreshing in {refreshCount} seconds
+        </p>
+      </div>
+      <div>
+        {departures && departures.length > 0 ? (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[50px]" />
+                <TableHead>Line</TableHead>
+                <TableHead>Direction</TableHead>
+                <TableHead className="text-right">Departure</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {departures.map((departure: BVGDeparture) => {
+                const departureDate = new Date(departure.when);
+                const delayedDepartureMs =
+                  departureDate.getTime() + departure.delay * 1000;
+                const minutesUntilDeparture = Math.ceil(
+                  (delayedDepartureMs - now.getTime()) / (1000 * 60),
+                );
+                return (
+                  <TableRow key={departure.tripId}>
+                    <TableCell>
+                      <FontAwesomeIcon icon={faBus} className="text-primary" />
+                    </TableCell>
+                    <TableCell className="font-medium">
+                      {departure.line.name}
+                    </TableCell>
+                    <TableCell>{departure.direction}</TableCell>
+                    <TableCell className="text-right">
+                      {minutesUntilDeparture} min
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
         ) : (
-          <p>No transport times found</p>
+          <p className="text-muted-foreground">No transport times found</p>
         )}
       </div>
       <Link to="/">
-        <button type="button">Back to Home</button>
+        <Button variant="outline">Back to Home</Button>
       </Link>
     </div>
   );
