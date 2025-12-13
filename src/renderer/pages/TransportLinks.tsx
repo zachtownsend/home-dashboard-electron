@@ -91,10 +91,9 @@ export default function JourneyTimes() {
             <TableBody>
               {departures.map((departure: BVGDeparture) => {
                 const departureDate = new Date(departure.when);
-                const delayedDepartureMs =
-                  departureDate.getTime() + departure.delay * 1000;
+                const expectedDepartureMs = departureDate.getTime();
                 const minutesUntilDeparture = Math.ceil(
-                  (delayedDepartureMs - now.getTime()) / (1000 * 60),
+                  (expectedDepartureMs - now.getTime()) / (1000 * 60),
                 );
                 return (
                   <TableRow key={departure.tripId}>
